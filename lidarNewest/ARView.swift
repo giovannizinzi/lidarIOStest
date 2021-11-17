@@ -20,7 +20,7 @@ struct ARViewIndicator: UIViewControllerRepresentable {
    UIViewControllerRepresentableContext<ARViewIndicator>) { }
 }
 
-class ARView: UIViewController, ARSCNViewDelegate {
+class ARView: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     
     var arView: ARSCNView {
           return self.view as! ARSCNView
@@ -63,7 +63,7 @@ class ARView: UIViewController, ARSCNViewDelegate {
                configuration.planeDetection = .horizontal
            configuration.frameSemantics = [.sceneDepth, .smoothedSceneDepth]
           arView.session.run(configuration)
-          arView.delegate = self
+          arView.session.delegate = self
        }
        override func viewWillDisappear(_ animated: Bool) {
           super.viewWillDisappear(animated)
@@ -76,14 +76,6 @@ class ARView: UIViewController, ARSCNViewDelegate {
     
        func session(_ session: ARSession, didFailWithError error: Error)
        {}
-    
-    func session(_ session: ARSession, didUpdate frame: ARFrame) {
-        if(frame.sceneDepth != nil) && (frame.smoothedSceneDepth != nil) {
-            var depthImage = frame.sceneDepth?.depthMap
-            var depthSmoothImage = frame.smoothedSceneDepth?.depthMap
-            print("Is this printing depth", depthImage)
-            print("Is this printing smoothed depth?", depthSmoothImage)
-        }
     
        func session(_ session: ARSession, cameraDidChangeTrackingState
        camera: ARCamera) {
@@ -108,7 +100,15 @@ class ARView: UIViewController, ARSCNViewDelegate {
                    
            print(message ?? "eh")
            
-           print(session.currentFrame?.capturedDepthData)
+//           print(session.currentFrame?.capturedDepthData?)
                }
+    func session(_ session: ARSession, didUpdate frame: ARFrame) {
+        if(frame.sceneDepth != nil) && (frame.smoothedSceneDepth != nil) {
+            let depthImage = frame.sceneDepth?.depthMap
+            let depthSmoothImage = frame.smoothedSceneDepth?.depthMap
+            print("Is this printing depth", depthImage!)
+            print("Is this printing smoothed depth?", depthSmoothImage!)
+        }
+    }
 
        }

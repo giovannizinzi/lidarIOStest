@@ -22,6 +22,8 @@ struct ARViewIndicator: UIViewControllerRepresentable {
 
 class ARView: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     
+    var takePhoto = false
+    
     var arView: ARSCNView {
           return self.view as! ARSCNView
        }
@@ -70,7 +72,9 @@ class ARView: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
           arView.session.pause()
        }
        // MARK: - ARSCNViewDelegate
-       func sessionWasInterrupted(_ session: ARSession) {}
+       func sessionWasInterrupted(_ session: ARSession) {
+           session.pause()
+       }
        
        func sessionInterruptionEnded(_ session: ARSession) {}
     
@@ -99,16 +103,27 @@ class ARView: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                    }
                    
            print(message ?? "eh")
-           
-//           print(session.currentFrame?.capturedDepthData?)
+           delayText()
                }
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
-        if(frame.sceneDepth != nil) && (frame.smoothedSceneDepth != nil) {
+        if(frame.sceneDepth != nil) && (frame.smoothedSceneDepth != nil) && (takePhoto) {
             let depthImage = frame.sceneDepth?.depthMap
             let depthSmoothImage = frame.smoothedSceneDepth?.depthMap
+            session.pause()
             print("Is this printing depth", depthImage!)
             print("Is this printing smoothed depth?", depthSmoothImage!)
+            let defaults = UserDefaults.standard
+            defaults.setValue(depthImage, forKey: "ARRAW")
+            defaults.setValue(depthSmoothImage, forKey: "ARSMOOTH")
+
         }
     }
+    
+    private func delayText() {
+            // Delay of 7.5 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                self.takePhoto = true
+            }
+        }
 
        }

@@ -112,10 +112,12 @@ class ARView: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             session.pause()
             print("Is this printing depth", depthImage!)
             print("Is this printing smoothed depth?", depthSmoothImage!)
+            saveDepthToPhotos(depthMap: depthImage!)
+            saveDepthToPhotos(depthMap: depthSmoothImage!)
             let defaults = UserDefaults.standard
-            defaults.setValue(depthImage, forKey: "ARRAW")
-            defaults.setValue(depthSmoothImage, forKey: "ARSMOOTH")
-
+//            defaults.setValue(depthImage, forKey: "ARRAW")
+//            defaults.setValue(depthSmoothImage, forKey: "ARSMOOTH")
+            processPhotoAR()
         }
     }
     
@@ -125,5 +127,26 @@ class ARView: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                 self.takePhoto = true
             }
         }
+    
+    func saveDepthToPhotos(depthMap: CVPixelBuffer) {
+        //Make sure to include a info.plist privacy
+        let ciImageDepth            = CIImage(cvPixelBuffer: depthMap)
+        let contextDepth:CIContext  = CIContext.init(options: nil)
+        let cgImageDepth:CGImage    = contextDepth.createCGImage(ciImageDepth, from: ciImageDepth.extent)!
+        let uiImageDepth:UIImage    = UIImage(cgImage: cgImageDepth, scale: 1, orientation: UIImage.Orientation.up)
+
+        // Save UIImage to Photos Album
+        UIImageWriteToSavedPhotosAlbum(uiImageDepth, nil, nil, nil)
+    }
+    
+    func processPhotoAR() {
+        let defaults = UserDefaults.standard
+//        let rawDepth = defaults.value(forKey: "ARRAW")
+//        let smoothDepth = defaults.value(forKey: "ARSMOOTH")
+        
+        //ok this doesn't work because the depth map isn't an object lmao
+//        print("Yo we got raw depth here:", rawDepth)
+//        print("yo we got smooth depth here:", smoothDepth)
+    }
 
        }
